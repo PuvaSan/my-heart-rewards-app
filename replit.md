@@ -2,7 +2,7 @@
 
 ## Overview
 
-Heart Rewards is a child-friendly goal-setting web application built with a full-stack architecture. The app empowers children to create and manage their own tasks and rewards using a "hearts" currency system. It follows a high-trust philosophy where children have full control over their goal-setting process, with minimal parental oversight through a simple confirmation gate.
+Heart Rewards is a child-friendly goal-setting web application built with a full-stack architecture. The app empowers children to create and manage their own tasks and rewards using a "hearts" currency system with monetary conversion capabilities. It follows a high-trust philosophy where children have full control over their goal-setting process, with minimal parental oversight through a simple confirmation gate. The app features engaging animations, visual feedback, and comprehensive activity tracking.
 
 ## System Architecture
 
@@ -43,9 +43,10 @@ Currently using in-memory storage, but PostgreSQL schema is defined:
 4. **Future Server Integration**: Ready for API integration with existing storage interface
 
 Current data entities:
-- **Tasks**: id, text, rewardValue (hearts earned)
-- **Rewards**: id, text, cost (hearts required)
-- **App State**: hearts count, tasks array, rewards array
+- **Tasks**: id, text, rewardValue (hearts earned, 1-10 via heart bar selector)
+- **Rewards**: id, text, cost (hearts required), moneyValue (optional dollar conversion)
+- **Activity History**: id, type, timestamp, description, hearts/money tracking
+- **App State**: hearts count, money bank, tasks array, rewards array, claimed rewards, activity history
 
 ## External Dependencies
 
@@ -81,7 +82,15 @@ Current data entities:
 ## Changelog
 
 Changelog:
-- June 14, 2025. Initial setup
+- June 14, 2025: Initial setup with basic task/reward system
+- June 14, 2025: Enhanced with animations, money system, and activity tracking
+  - Added interactive heart bar selector (1-10 hearts) for task creation
+  - Implemented money counter and collection system for rewards
+  - Added floating animations for hearts and money to their respective counters
+  - Integrated confetti effects for reward claiming celebrations
+  - Created comprehensive activity history with modal interface
+  - Added reward renewal system for non-monetary rewards
+  - Enhanced visual feedback with claimed reward states
 
 ## User Preferences
 

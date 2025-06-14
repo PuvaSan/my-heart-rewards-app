@@ -61,7 +61,7 @@ export default function RewardsList({ rewards, hearts, claimedRewards, onClaimRe
               <div className="flex items-center space-x-3">
                 {isClaimed && reward.moneyValue ? (
                   <button
-                    onClick={() => onCollectMoney(reward.id)}
+                    onClick={(e) => onCollectMoney(reward.id, e.currentTarget)}
                     className="bg-mint hover:bg-green-400 text-navy px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
                   >
                     <i className="fas fa-piggy-bank"></i>
