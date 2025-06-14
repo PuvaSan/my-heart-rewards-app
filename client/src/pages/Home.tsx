@@ -1,0 +1,231 @@
+import { useState, useEffect } from 'react';
+import { Task, Reward, AppState } from '@/lib/types';
+import { loadAppState, saveAppState } from '@/lib/storage';
+import HeartCounter from '@/components/HeartCounter';
+import TaskForm from '@/components/TaskForm';
+import TasksList from '@/components/TasksList';
+import RewardForm from '@/components/RewardForm';
+import RewardsList from '@/components/RewardsList';
+import ParentGateModal from '@/components/ParentGateModal';
+import SuccessOverlay from '@/components/SuccessOverlay';
+
+export default function Home() {
+  const [appState, setAppState] = useState<AppState>({ hearts: 0, tasks: [], rewards: [] });
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [showRewardForm, setShowRewardForm] = useState(false);
+  const [parentGateModal, setParentGateModal] = useState<{ isOpen: boolean; reward: Reward | null }>({
+    isOpen: false,
+    reward: null
+  });
+  const [successOverlay, setSuccessOverlay] = useState<{
+    isVisible: boolean;
+    message: string;
+    subMessage?: string;
+  }>({
+    isVisible: false,
+    message: '',
+    subMessage: ''
+  });
+
+  // Load state from localStorage on component mount
+  useEffect(() => {
+    const savedState = loadAppState();
+    setAppState(savedState);
+  }, []);
+
+  // Save state to localStorage whenever appState changes
+  useEffect(() => {
+    saveAppState(appState);
+  }, [appState]);
+
+  const handleCreateTask = (task: Task) => {
+    setAppState(prev => ({
+      ...prev,
+      tasks: [...prev.tasks, task]
+    }));
+    setShowTaskForm(false);
+    setSuccessOverlay({
+      isVisible: true,
+      message: 'Task Created!',
+      subMessage: 'Ready to earn some hearts!'
+    });
+  };
+
+  const handleCompleteTask = (task: Task) => {
+    setAppState(prev => ({
+      ...prev,
+      hearts: prev.hearts + task.rewardValue
+    }));
+    setSuccessOverlay({
+      isVisible: true,
+      message: 'Amazing Job!',
+      subMessage: `You earned ${task.rewardValue} hearts!`
+    });
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    if (confirm('Are you sure you want to delete this task?')) {
+      setAppState(prev => ({
+        ...prev,
+        tasks: prev.tasks.filter(task => task.id !== taskId)
+      }));
+    }
+  };
+
+  const handleCreateReward = (reward: Reward) => {
+    setAppState(prev => ({
+      ...prev,
+      rewards: [...prev.rewards, reward]
+    }));
+    setShowRewardForm(false);
+    setSuccessOverlay({
+      isVisible: true,
+      message: 'Reward Created!',
+      subMessage: 'Something to work towards!'
+    });
+  };
+
+  const handleClaimReward = (reward: Reward) => {
+    if (appState.hearts >= reward.cost) {
+      setParentGateModal({ isOpen: true, reward });
+    }
+  };
+
+  const handleParentConfirm = () => {
+    if (parentGateModal.reward) {
+      setAppState(prev => ({
+        ...prev,
+        hearts: prev.hearts - parentGateModal.reward!.cost
+      }));
+      setSuccessOverlay({
+        isVisible: true,
+        message: 'Reward Claimed!',
+        subMessage: 'Enjoy your reward!'
+      });
+    }
+    setParentGateModal({ isOpen: false, reward: null });
+  };
+
+  const handleParentDeny = () => {
+    setSuccessOverlay({
+      isVisible: true,
+      message: 'Ask a Parent',
+      subMessage: 'Please ask a parent to help you claim your reward!'
+    });
+    setParentGateModal({ isOpen: false, reward: null });
+  };
+
+  const handleDeleteReward = (rewardId: string) => {
+    if (confirm('Are you sure you want to delete this reward?')) {
+      setAppState(prev => ({
+        ...prev,
+        rewards: prev.rewards.filter(reward => reward.id !== rewardId)
+      }));
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-cream to-yellow-50">
+      {/* Header */}
+      <header className="bg-white shadow-lg rounded-b-3xl mb-8 sticky top-0 z-40">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <i className="fas fa-heart text-4xl text-coral animate-heart-beat"></i>
+              <h1 className="text-3xl md:text-4xl font-bold text-navy">Heart Rewards</h1>
+            </div>
+            <HeartCounter hearts={appState.hearts} />
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-6 pb-12">
+        {/* Tasks Section */}
+        <section className="mb-12">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-navy flex items-center">
+              <i className="fas fa-tasks text-teal mr-3"></i>
+              My Tasks
+            </h2>
+            <button
+              onClick={() => setShowTaskForm(true)}
+              className="bg-teal hover:bg-teal-600 text-white px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
+            >
+              <i className="fas fa-plus"></i>
+              <span>Add Task</span>
+            </button>
+          </div>
+
+          <TaskForm
+            isVisible={showTaskForm}
+            onCreateTask={handleCreateTask}
+            onCancel={() => setShowTaskForm(false)}
+          />
+
+          <TasksList
+            tasks={appState.tasks}
+            onCompleteTask={handleCompleteTask}
+            onDeleteTask={handleDeleteTask}
+          />
+        </section>
+
+        {/* Rewards Section */}
+        <section>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-navy flex items-center">
+              <i className="fas fa-gift text-sunny mr-3"></i>
+              My Rewards
+            </h2>
+            <button
+              onClick={() => setShowRewardForm(true)}
+              className="bg-sunny hover:bg-yellow-500 text-navy px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
+            >
+              <i className="fas fa-plus"></i>
+              <span>Add Reward</span>
+            </button>
+          </div>
+
+          <RewardForm
+            isVisible={showRewardForm}
+            onCreateReward={handleCreateReward}
+            onCancel={() => setShowRewardForm(false)}
+          />
+
+          <RewardsList
+            rewards={appState.rewards}
+            hearts={appState.hearts}
+            onClaimReward={handleClaimReward}
+            onDeleteReward={handleDeleteReward}
+          />
+        </section>
+      </main>
+
+      {/* Parent Gate Modal */}
+      <ParentGateModal
+        isOpen={parentGateModal.isOpen}
+        reward={parentGateModal.reward}
+        onConfirm={handleParentConfirm}
+        onDeny={handleParentDeny}
+        onClose={() => setParentGateModal({ isOpen: false, reward: null })}
+      />
+
+      {/* Success Overlay */}
+      <SuccessOverlay
+        isVisible={successOverlay.isVisible}
+        message={successOverlay.message}
+        subMessage={successOverlay.subMessage}
+        onClose={() => setSuccessOverlay({ isVisible: false, message: '', subMessage: '' })}
+      />
+
+      {/* Floating Help Hint */}
+      <div className="fixed bottom-6 right-6 space-y-3">
+        <div 
+          className="bg-white rounded-full shadow-lg p-3 text-coral cursor-pointer hover:scale-110 transition-transform" 
+          title="Welcome to Heart Rewards! Create tasks to earn hearts, then spend them on rewards!"
+        >
+          <i className="fas fa-question-circle text-2xl"></i>
+        </div>
+      </div>
+    </div>
+  );
+}
