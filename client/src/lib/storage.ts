@@ -22,7 +22,8 @@ export const loadAppState = (): AppState => {
         money: parsedState.money || 0,
         tasks: parsedState.tasks || [],
         rewards: parsedState.rewards || [],
-        claimedRewards: parsedState.claimedRewards || []
+        claimedRewards: parsedState.claimedRewards || [],
+        activityHistory: parsedState.activityHistory || []
       };
     }
   } catch (error) {

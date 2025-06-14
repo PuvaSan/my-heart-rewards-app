@@ -6,10 +6,11 @@ interface RewardsListProps {
   claimedRewards: string[];
   onClaimReward: (reward: Reward) => void;
   onCollectMoney: (rewardId: string) => void;
+  onRenewReward: (rewardId: string) => void;
   onDeleteReward: (rewardId: string) => void;
 }
 
-export default function RewardsList({ rewards, hearts, claimedRewards, onClaimReward, onCollectMoney, onDeleteReward }: RewardsListProps) {
+export default function RewardsList({ rewards, hearts, claimedRewards, onClaimReward, onCollectMoney, onRenewReward, onDeleteReward }: RewardsListProps) {
   if (rewards.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 text-center border-l-4 border-gray-300">
@@ -66,6 +67,14 @@ export default function RewardsList({ rewards, hearts, claimedRewards, onClaimRe
                     <i className="fas fa-piggy-bank"></i>
                     <span>Collect ${reward.moneyValue}!</span>
                   </button>
+                ) : isClaimed && !reward.moneyValue ? (
+                  <button
+                    onClick={() => onRenewReward(reward.id)}
+                    className="bg-teal hover:bg-teal-600 text-white px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
+                  >
+                    <i className="fas fa-redo"></i>
+                    <span>Renew</span>
+                  </button>
                 ) : !isClaimed ? (
                   <button
                     onClick={() => canAfford && onClaimReward(reward)}
@@ -79,12 +88,7 @@ export default function RewardsList({ rewards, hearts, claimedRewards, onClaimRe
                     <i className={`fas ${canAfford ? 'fa-trophy' : 'fa-lock'}`}></i>
                     <span>{canAfford ? 'Claim!' : 'Need More Hearts'}</span>
                   </button>
-                ) : (
-                  <div className="text-mint font-semibold flex items-center space-x-2">
-                    <i className="fas fa-check-circle"></i>
-                    <span>Reward Earned!</span>
-                  </div>
-                )}
+                ) : null}
                 <button
                   onClick={() => onDeleteReward(reward.id)}
                   className="text-gray-400 hover:text-red-500 p-2 transition-colors"

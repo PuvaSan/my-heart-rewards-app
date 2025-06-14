@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Task, Reward, AppState } from '@/lib/types';
-import { loadAppState, saveAppState } from '@/lib/storage';
+import { useState, useEffect, useRef } from 'react';
+import { Task, Reward, AppState, ActivityEntry } from '@/lib/types';
+import { loadAppState, saveAppState, generateId } from '@/lib/storage';
 import HeartCounter from '@/components/HeartCounter';
 import MoneyCounter from '@/components/MoneyCounter';
 import TaskForm from '@/components/TaskForm';
@@ -9,11 +9,15 @@ import RewardForm from '@/components/RewardForm';
 import RewardsList from '@/components/RewardsList';
 import ParentGateModal from '@/components/ParentGateModal';
 import SuccessOverlay from '@/components/SuccessOverlay';
+import FloatingAnimation from '@/components/FloatingAnimation';
+import ConfettiEffect from '@/components/ConfettiEffect';
+import ActivityHistoryModal from '@/components/ActivityHistoryModal';
 
 export default function Home() {
-  const [appState, setAppState] = useState<AppState>({ hearts: 0, money: 0, tasks: [], rewards: [], claimedRewards: [] });
+  const [appState, setAppState] = useState<AppState>({ hearts: 0, money: 0, tasks: [], rewards: [], claimedRewards: [], activityHistory: [] });
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showRewardForm, setShowRewardForm] = useState(false);
+  const [showActivityHistory, setShowActivityHistory] = useState(false);
   const [parentGateModal, setParentGateModal] = useState<{ isOpen: boolean; reward: Reward | null }>({
     isOpen: false,
     reward: null
@@ -27,6 +31,21 @@ export default function Home() {
     message: '',
     subMessage: ''
   });
+  const [floatingAnimation, setFloatingAnimation] = useState<{
+    isVisible: boolean;
+    startPosition: { x: number; y: number };
+    targetPosition: { x: number; y: number };
+    content: React.ReactNode;
+  }>({
+    isVisible: false,
+    startPosition: { x: 0, y: 0 },
+    targetPosition: { x: 0, y: 0 },
+    content: null
+  });
+  const [showConfetti, setShowConfetti] = useState(false);
+  
+  const heartCounterRef = useRef<HTMLDivElement>(null);
+  const moneyCounterRef = useRef<HTMLDivElement>(null);
 
   // Load state from localStorage on component mount
   useEffect(() => {
@@ -38,6 +57,42 @@ export default function Home() {
   useEffect(() => {
     saveAppState(appState);
   }, [appState]);
+
+  // Helper function to add activity to history
+  const addActivity = (entry: Omit<ActivityEntry, 'id' | 'timestamp'>) => {
+    const newActivity: ActivityEntry = {
+      ...entry,
+      id: generateId(),
+      timestamp: Date.now()
+    };
+    setAppState(prev => ({
+      ...prev,
+      activityHistory: [...prev.activityHistory, newActivity]
+    }));
+  };
+
+  // Helper function to trigger floating animation
+  const triggerFloatingAnimation = (
+    startElement: HTMLElement,
+    targetElement: HTMLElement,
+    content: React.ReactNode
+  ) => {
+    const startRect = startElement.getBoundingClientRect();
+    const targetRect = targetElement.getBoundingClientRect();
+    
+    setFloatingAnimation({
+      isVisible: true,
+      startPosition: {
+        x: startRect.left + startRect.width / 2,
+        y: startRect.top + startRect.height / 2
+      },
+      targetPosition: {
+        x: targetRect.left + targetRect.width / 2,
+        y: targetRect.top + targetRect.height / 2
+      },
+      content
+    });
+  };
 
   const handleCreateTask = (task: Task) => {
     setAppState(prev => ({
