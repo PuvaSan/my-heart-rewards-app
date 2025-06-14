@@ -22,8 +22,8 @@ export default function TaskForm({ onCreateTask, onCancel, isVisible }: TaskForm
       newErrors.text = 'Please describe your task';
     }
     
-    if (rewardValue < 1 || rewardValue > 50) {
-      newErrors.rewardValue = 'Hearts must be between 1 and 50';
+    if (rewardValue < 1 || rewardValue > 10) {
+      newErrors.rewardValue = 'Hearts must be between 1 and 10';
     }
     
     if (Object.keys(newErrors).length > 0) {
@@ -75,20 +75,33 @@ export default function TaskForm({ onCreateTask, onCancel, isVisible }: TaskForm
           {errors.text && <p className="text-red-500 text-sm mt-1">{errors.text}</p>}
         </div>
         <div>
-          <label className="block text-navy font-semibold mb-2">How many hearts is it worth?</label>
-          <input
-            type="number"
-            min="1"
-            max="50"
-            value={rewardValue}
-            onChange={(e) => setRewardValue(parseInt(e.target.value) || 1)}
-            placeholder="5"
-            className={`w-full px-4 py-3 text-lg border-2 rounded-xl focus:outline-none transition-colors ${
-              errors.rewardValue 
-                ? 'border-red-500 focus:border-red-500' 
-                : 'border-gray-200 focus:border-teal'
-            }`}
-          />
+          <label className="block text-navy font-semibold mb-4">How many hearts is it worth?</label>
+          <div className="bg-gray-50 rounded-xl p-4 mb-2">
+            <div className="flex justify-center items-center space-x-2 mb-3">
+              {[...Array(10)].map((_, index) => {
+                const heartNumber = index + 1;
+                const isSelected = heartNumber <= rewardValue;
+                return (
+                  <button
+                    key={heartNumber}
+                    type="button"
+                    onClick={() => setRewardValue(heartNumber)}
+                    className={`text-3xl transition-all duration-200 transform hover:scale-110 ${
+                      isSelected 
+                        ? 'text-coral animate-heart-beat' 
+                        : 'text-gray-300 hover:text-coral'
+                    }`}
+                  >
+                    <i className="fas fa-heart"></i>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="text-center">
+              <span className="text-2xl font-bold text-coral">{rewardValue}</span>
+              <span className="text-gray-600 ml-2">hearts</span>
+            </div>
+          </div>
           {errors.rewardValue && <p className="text-red-500 text-sm mt-1">{errors.rewardValue}</p>}
         </div>
         <div className="flex space-x-3">

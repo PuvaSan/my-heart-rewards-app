@@ -4,6 +4,7 @@ const STORAGE_KEY = 'heart-rewards-app-state';
 
 const defaultState: AppState = {
   hearts: 0,
+  money: 0,
   tasks: [],
   rewards: []
 };

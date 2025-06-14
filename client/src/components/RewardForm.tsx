@@ -11,12 +11,13 @@ interface RewardFormProps {
 export default function RewardForm({ onCreateReward, onCancel, isVisible }: RewardFormProps) {
   const [text, setText] = useState('');
   const [cost, setCost] = useState<number>(1);
-  const [errors, setErrors] = useState<{ text?: string; cost?: string }>({});
+  const [moneyValue, setMoneyValue] = useState<number>(0);
+  const [errors, setErrors] = useState<{ text?: string; cost?: string; moneyValue?: string }>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newErrors: { text?: string; cost?: string } = {};
+    const newErrors: { text?: string; cost?: string; moneyValue?: string } = {};
     
     if (!text.trim()) {
       newErrors.text = 'Please describe your reward';
@@ -24,6 +25,10 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible }: Rewa
     
     if (cost < 1 || cost > 200) {
       newErrors.cost = 'Cost must be between 1 and 200 hearts';
+    }
+
+    if (moneyValue < 0 || moneyValue > 100) {
+      newErrors.moneyValue = 'Money value must be between 0 and $100';
     }
     
     if (Object.keys(newErrors).length > 0) {
@@ -34,18 +39,21 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible }: Rewa
     const newReward: Reward = {
       id: generateId(),
       text: text.trim(),
-      cost
+      cost,
+      moneyValue: moneyValue > 0 ? moneyValue : undefined
     };
     
     onCreateReward(newReward);
     setText('');
     setCost(1);
+    setMoneyValue(0);
     setErrors({});
   };
 
   const handleCancel = () => {
     setText('');
     setCost(1);
+    setMoneyValue(0);
     setErrors({});
     onCancel();
   };
@@ -90,6 +98,27 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible }: Rewa
             }`}
           />
           {errors.cost && <p className="text-red-500 text-sm mt-1">{errors.cost}</p>}
+        </div>
+        <div>
+          <label className="block text-navy font-semibold mb-2">Money value (optional)</label>
+          <div className="flex items-center space-x-2">
+            <span className="text-2xl font-bold text-mint">$</span>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={moneyValue}
+              onChange={(e) => setMoneyValue(parseInt(e.target.value) || 0)}
+              placeholder="0"
+              className={`flex-1 px-4 py-3 text-lg border-2 rounded-xl focus:outline-none transition-colors ${
+                errors.moneyValue 
+                  ? 'border-red-500 focus:border-red-500' 
+                  : 'border-gray-200 focus:border-mint'
+              }`}
+            />
+          </div>
+          <p className="text-sm text-gray-600 mt-1">Add a dollar value that can be collected after claiming this reward</p>
+          {errors.moneyValue && <p className="text-red-500 text-sm mt-1">{errors.moneyValue}</p>}
         </div>
         <div className="flex space-x-3">
           <button
