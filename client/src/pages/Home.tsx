@@ -1,26 +1,39 @@
-import { useState, useEffect, useRef } from 'react';
-import { Task, Reward, AppState, ActivityEntry } from '@/lib/types';
-import { loadAppState, saveAppState, generateId } from '@/lib/storage';
-import HeartCounter from '@/components/HeartCounter';
-import MoneyCounter from '@/components/MoneyCounter';
-import TaskForm from '@/components/TaskForm';
-import TasksList from '@/components/TasksList';
-import RewardForm from '@/components/RewardForm';
-import RewardsList from '@/components/RewardsList';
-import ParentGateModal from '@/components/ParentGateModal';
-import SuccessOverlay from '@/components/SuccessOverlay';
-import FloatingAnimation from '@/components/FloatingAnimation';
-import ConfettiEffect from '@/components/ConfettiEffect';
-import ActivityHistoryModal from '@/components/ActivityHistoryModal';
+import { useState, useEffect, useRef } from "react";
+import { Task, Reward, AppState, ActivityEntry } from "@/lib/types";
+import { loadAppState, saveAppState, generateId } from "@/lib/storage";
+import { getCurrencySymbol } from "@/components/CurrencySelector";
+import HeartCounter from "@/components/HeartCounter";
+import MoneyCounter from "@/components/MoneyCounter";
+import TaskForm from "@/components/TaskForm";
+import TasksList from "@/components/TasksList";
+import RewardForm from "@/components/RewardForm";
+import RewardsList from "@/components/RewardsList";
+import ParentGateModal from "@/components/ParentGateModal";
+import SuccessOverlay from "@/components/SuccessOverlay";
+import FloatingAnimation from "@/components/FloatingAnimation";
+import ConfettiEffect from "@/components/ConfettiEffect";
+import ActivityHistoryModal from "@/components/ActivityHistoryModal";
 
 export default function Home() {
-  const [appState, setAppState] = useState<AppState>({ childName: '', currency: 'YEN', hearts: 0, money: 0, tasks: [], rewards: [], claimedRewards: [], activityHistory: [] });
+  const [appState, setAppState] = useState<AppState>({
+    childName: "",
+    currency: "YEN",
+    hearts: 0,
+    money: 0,
+    tasks: [],
+    rewards: [],
+    claimedRewards: [],
+    activityHistory: [],
+  });
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showRewardForm, setShowRewardForm] = useState(false);
   const [showActivityHistory, setShowActivityHistory] = useState(false);
-  const [parentGateModal, setParentGateModal] = useState<{ isOpen: boolean; reward: Reward | null }>({
+  const [parentGateModal, setParentGateModal] = useState<{
+    isOpen: boolean;
+    reward: Reward | null;
+  }>({
     isOpen: false,
-    reward: null
+    reward: null,
   });
   const [successOverlay, setSuccessOverlay] = useState<{
     isVisible: boolean;
@@ -28,8 +41,8 @@ export default function Home() {
     subMessage?: string;
   }>({
     isVisible: false,
-    message: '',
-    subMessage: ''
+    message: "",
+    subMessage: "",
   });
   const [floatingAnimation, setFloatingAnimation] = useState<{
     isVisible: boolean;
@@ -40,10 +53,10 @@ export default function Home() {
     isVisible: false,
     startPosition: { x: 0, y: 0 },
     targetPosition: { x: 0, y: 0 },
-    content: null
+    content: null,
   });
   const [showConfetti, setShowConfetti] = useState(false);
-  
+
   const heartCounterRef = useRef<HTMLDivElement>(null);
   const moneyCounterRef = useRef<HTMLDivElement>(null);
 
@@ -59,15 +72,23 @@ export default function Home() {
   }, [appState]);
 
   // Helper function to add activity to history
-  const addActivity = (entry: Omit<ActivityEntry, 'id' | 'timestamp'>) => {
+  const addActivity = (entry: Omit<ActivityEntry, "id" | "timestamp">) => {
     const newActivity: ActivityEntry = {
       ...entry,
       id: generateId(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-    setAppState(prev => ({
+    setAppState((prev) => ({
       ...prev,
-      activityHistory: [...prev.activityHistory, newActivity]
+      activityHistory: [...prev.activityHistory, newActivity],
+    }));
+  };
+
+  // Currency toggle function
+  const toggleCurrency = () => {
+    setAppState((prev) => ({
+      ...prev,
+      currency: prev.currency === 'USD' ? 'YEN' : 'USD',
     }));
   };
 
@@ -75,49 +96,49 @@ export default function Home() {
   const triggerFloatingAnimation = (
     startElement: HTMLElement,
     targetElement: HTMLElement,
-    content: React.ReactNode
+    content: React.ReactNode,
   ) => {
     const startRect = startElement.getBoundingClientRect();
     const targetRect = targetElement.getBoundingClientRect();
-    
+
     setFloatingAnimation({
       isVisible: true,
       startPosition: {
         x: startRect.left + startRect.width / 2,
-        y: startRect.top + startRect.height / 2
+        y: startRect.top + startRect.height / 2,
       },
       targetPosition: {
         x: targetRect.left + targetRect.width / 2,
-        y: targetRect.top + targetRect.height / 2
+        y: targetRect.top + targetRect.height / 2,
       },
-      content
+      content,
     });
   };
 
   const handleCreateTask = (task: Task) => {
-    setAppState(prev => ({
+    setAppState((prev) => ({
       ...prev,
-      tasks: [...prev.tasks, task]
+      tasks: [...prev.tasks, task],
     }));
     setShowTaskForm(false);
     setSuccessOverlay({
       isVisible: true,
-      message: 'Task Created!',
-      subMessage: 'Ready to earn some hearts!'
+      message: "Task Created!",
+      subMessage: "Ready to earn some hearts!",
     });
   };
 
   const handleCompleteTask = (task: Task, buttonElement?: HTMLElement) => {
-    setAppState(prev => ({
+    setAppState((prev) => ({
       ...prev,
-      hearts: prev.hearts + task.rewardValue
+      hearts: prev.hearts + task.rewardValue,
     }));
-    
+
     // Add to activity history
     addActivity({
-      type: 'task_completed',
+      type: "task_completed",
       description: `Completed "${task.text}"`,
-      heartsEarned: task.rewardValue
+      heartsEarned: task.rewardValue,
     });
 
     // Trigger floating animation if we have both elements
@@ -128,36 +149,36 @@ export default function Home() {
         <div className="text-coral flex items-center space-x-1">
           <i className="fas fa-heart"></i>
           <span>+{task.rewardValue}</span>
-        </div>
+        </div>,
       );
     }
-    
+
     setSuccessOverlay({
       isVisible: true,
-      message: 'Amazing Job!',
-      subMessage: `You earned ${task.rewardValue} hearts!`
+      message: "Amazing Job!",
+      subMessage: `You earned ${task.rewardValue} hearts!`,
     });
   };
 
   const handleDeleteTask = (taskId: string) => {
-    if (confirm('Are you sure you want to delete this task?')) {
-      setAppState(prev => ({
+    if (confirm("Are you sure you want to delete this task?")) {
+      setAppState((prev) => ({
         ...prev,
-        tasks: prev.tasks.filter(task => task.id !== taskId)
+        tasks: prev.tasks.filter((task) => task.id !== taskId),
       }));
     }
   };
 
   const handleCreateReward = (reward: Reward) => {
-    setAppState(prev => ({
+    setAppState((prev) => ({
       ...prev,
-      rewards: [...prev.rewards, reward]
+      rewards: [...prev.rewards, reward],
     }));
     setShowRewardForm(false);
     setSuccessOverlay({
       isVisible: true,
-      message: 'Reward Created!',
-      subMessage: 'Something to work towards!'
+      message: "Reward Created!",
+      subMessage: "Something to work towards!",
     });
   };
 
@@ -169,26 +190,26 @@ export default function Home() {
 
   const handleParentConfirm = () => {
     if (parentGateModal.reward) {
-      setAppState(prev => ({
+      setAppState((prev) => ({
         ...prev,
         hearts: prev.hearts - parentGateModal.reward!.cost,
-        claimedRewards: [...prev.claimedRewards, parentGateModal.reward!.id]
+        claimedRewards: [...prev.claimedRewards, parentGateModal.reward!.id],
       }));
-      
+
       // Add to activity history
       addActivity({
-        type: 'reward_claimed',
+        type: "reward_claimed",
         description: `Claimed "${parentGateModal.reward.text}"`,
-        heartsSpent: parentGateModal.reward.cost
+        heartsSpent: parentGateModal.reward.cost,
       });
-      
+
       // Trigger confetti
       setShowConfetti(true);
-      
+
       setSuccessOverlay({
         isVisible: true,
-        message: 'Reward Claimed!',
-        subMessage: 'Enjoy your reward!'
+        message: "Reward Claimed!",
+        subMessage: "Enjoy your reward!",
       });
     }
     setParentGateModal({ isOpen: false, reward: null });
@@ -197,26 +218,29 @@ export default function Home() {
   const handleParentDeny = () => {
     setSuccessOverlay({
       isVisible: true,
-      message: 'Ask a Parent',
-      subMessage: 'Please ask a parent to help you claim your reward!'
+      message: "Ask a Parent",
+      subMessage: "Please ask a parent to help you claim your reward!",
     });
     setParentGateModal({ isOpen: false, reward: null });
   };
 
-  const handleCollectMoney = (rewardId: string, buttonElement?: HTMLElement) => {
-    const reward = appState.rewards.find(r => r.id === rewardId);
+  const handleCollectMoney = (
+    rewardId: string,
+    buttonElement?: HTMLElement,
+  ) => {
+    const reward = appState.rewards.find((r) => r.id === rewardId);
     if (reward && reward.moneyValue) {
-      setAppState(prev => ({
+      setAppState((prev) => ({
         ...prev,
         money: prev.money + reward.moneyValue!,
-        claimedRewards: prev.claimedRewards.filter(id => id !== rewardId)
+        claimedRewards: prev.claimedRewards.filter((id) => id !== rewardId),
       }));
-      
+
       // Add to activity history
       addActivity({
-        type: 'money_collected',
-        description: `Collected $${reward.moneyValue} from "${reward.text}"`,
-        moneyEarned: reward.moneyValue
+        type: "money_collected",
+        description: `Collected ${getCurrencySymbol(appState.currency)}${reward.moneyValue} from "${reward.text}"`,
+        moneyEarned: reward.moneyValue,
       });
 
       // Trigger floating animation if we have both elements
@@ -225,38 +249,38 @@ export default function Home() {
           buttonElement,
           moneyCounterRef.current,
           <div className="text-mint flex items-center space-x-1">
-            <i className="fas fa-dollar-sign"></i>
-            <span>+${reward.moneyValue}</span>
-          </div>
+            <i className="fas fa-piggy-bank"></i>
+            <span>+{getCurrencySymbol(appState.currency)}{reward.moneyValue}</span>
+          </div>,
         );
       }
-      
+
       setSuccessOverlay({
         isVisible: true,
-        message: 'Money Collected!',
-        subMessage: `You earned $${reward.moneyValue}!`
+        message: "Money Collected!",
+        subMessage: `You earned ${getCurrencySymbol(appState.currency)}${reward.moneyValue}!`,
       });
     }
   };
 
   const handleRenewReward = (rewardId: string) => {
-    setAppState(prev => ({
+    setAppState((prev) => ({
       ...prev,
-      claimedRewards: prev.claimedRewards.filter(id => id !== rewardId)
+      claimedRewards: prev.claimedRewards.filter((id) => id !== rewardId),
     }));
     setSuccessOverlay({
       isVisible: true,
-      message: 'Reward Renewed!',
-      subMessage: 'Ready to earn again!'
+      message: "Reward Renewed!",
+      subMessage: "Ready to earn again!",
     });
   };
 
   const handleDeleteReward = (rewardId: string) => {
-    if (confirm('Are you sure you want to delete this reward?')) {
-      setAppState(prev => ({
+    if (confirm("Are you sure you want to delete this reward?")) {
+      setAppState((prev) => ({
         ...prev,
-        rewards: prev.rewards.filter(reward => reward.id !== rewardId),
-        claimedRewards: prev.claimedRewards.filter(id => id !== rewardId)
+        rewards: prev.rewards.filter((reward) => reward.id !== rewardId),
+        claimedRewards: prev.claimedRewards.filter((id) => id !== rewardId),
       }));
     }
   };
@@ -269,7 +293,9 @@ export default function Home() {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <i className="fas fa-heart text-4xl text-coral animate-heart-beat"></i>
-              <h1 className="text-3xl md:text-4xl font-bold text-navy">Heart Rewards</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-navy">
+                My Heart Rewards
+              </h1>
             </div>
             <div className="flex items-center space-x-4">
               <button
@@ -280,8 +306,12 @@ export default function Home() {
                 <i className="fas fa-history"></i>
                 <span className="hidden sm:inline">History</span>
               </button>
-              <div ref={moneyCounterRef}>
-                <MoneyCounter money={appState.money} />
+                          <div ref={moneyCounterRef}>
+              <MoneyCounter
+                money={appState.money}
+                currency={appState.currency}
+                onCurrencyToggle={toggleCurrency}
+              />
               </div>
               <div ref={heartCounterRef}>
                 <HeartCounter hearts={appState.hearts} />
@@ -341,17 +371,19 @@ export default function Home() {
             isVisible={showRewardForm}
             onCreateReward={handleCreateReward}
             onCancel={() => setShowRewardForm(false)}
+            currency={appState.currency}
           />
 
-          <RewardsList
-            rewards={appState.rewards}
-            hearts={appState.hearts}
-            claimedRewards={appState.claimedRewards}
-            onClaimReward={handleClaimReward}
-            onCollectMoney={handleCollectMoney}
-            onRenewReward={handleRenewReward}
-            onDeleteReward={handleDeleteReward}
-          />
+                      <RewardsList
+              rewards={appState.rewards}
+              hearts={appState.hearts}
+              currency={appState.currency}
+              claimedRewards={appState.claimedRewards}
+              onClaimReward={handleClaimReward}
+              onCollectMoney={handleCollectMoney}
+              onRenewReward={handleRenewReward}
+              onDeleteReward={handleDeleteReward}
+            />
         </section>
       </main>
 
@@ -369,7 +401,9 @@ export default function Home() {
         isVisible={successOverlay.isVisible}
         message={successOverlay.message}
         subMessage={successOverlay.subMessage}
-        onClose={() => setSuccessOverlay({ isVisible: false, message: '', subMessage: '' })}
+        onClose={() =>
+          setSuccessOverlay({ isVisible: false, message: "", subMessage: "" })
+        }
       />
 
       {/* Floating Animations */}
@@ -378,7 +412,9 @@ export default function Home() {
         startPosition={floatingAnimation.startPosition}
         targetPosition={floatingAnimation.targetPosition}
         content={floatingAnimation.content}
-        onComplete={() => setFloatingAnimation(prev => ({ ...prev, isVisible: false }))}
+        onComplete={() =>
+          setFloatingAnimation((prev) => ({ ...prev, isVisible: false }))
+        }
       />
 
       {/* Confetti Effect */}
@@ -396,8 +432,8 @@ export default function Home() {
 
       {/* Floating Help Hint */}
       <div className="fixed bottom-6 right-6 space-y-3">
-        <div 
-          className="bg-white rounded-full shadow-lg p-3 text-coral cursor-pointer hover:scale-110 transition-transform" 
+        <div
+          className="bg-white rounded-full shadow-lg p-3 text-coral cursor-pointer hover:scale-110 transition-transform"
           title="Welcome to Heart Rewards! Create tasks to earn hearts, then spend them on rewards!"
         >
           <i className="fas fa-question-circle text-2xl"></i>

@@ -29,10 +29,10 @@ export default function RewardsList({ rewards, hearts, currency, claimedRewards,
         const canAfford = hearts >= reward.cost;
         const heartsNeeded = reward.cost - hearts;
         const isClaimed = claimedRewards.includes(reward.id);
-        
+
         return (
-          <div 
-            key={reward.id} 
+          <div
+            key={reward.id}
             className={`bg-white rounded-2xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-all duration-200 animate-fade-in ${
               isClaimed ? 'border-mint bg-mint bg-opacity-10' : canAfford ? 'border-sunny' : 'border-gray-300 opacity-75'
             }`}
@@ -64,7 +64,7 @@ export default function RewardsList({ rewards, hearts, currency, claimedRewards,
                 {isClaimed && reward.moneyValue ? (
                   <button
                     onClick={(e) => onCollectMoney(reward.id, e.currentTarget)}
-                    className="bg-mint hover:bg-green-400 text-navy px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
+                    className="animate-rainbow hover:bg-green-400 text-white px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
                   >
                     <i className="fas fa-piggy-bank"></i>
                     <span>Collect {getCurrencySymbol(currency)}{reward.moneyValue}!</span>

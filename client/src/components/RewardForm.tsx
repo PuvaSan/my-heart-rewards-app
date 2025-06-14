@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { Reward } from '@/lib/types';
+import { Reward, AppState } from '@/lib/types';
 import { generateId } from '@/lib/storage';
+import { getCurrencySymbol } from './CurrencySelector';
 
 interface RewardFormProps {
   onCreateReward: (reward: Reward) => void;
   onCancel: () => void;
   isVisible: boolean;
+  currency: AppState['currency'];
 }
 
-export default function RewardForm({ onCreateReward, onCancel, isVisible }: RewardFormProps) {
+export default function RewardForm({ onCreateReward, onCancel, isVisible, currency }: RewardFormProps) {
   const [text, setText] = useState('');
   const [cost, setCost] = useState<number>(1);
   const [moneyValue, setMoneyValue] = useState<number>(0);
@@ -16,33 +18,33 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible }: Rewa
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const newErrors: { text?: string; cost?: string; moneyValue?: string } = {};
-    
+
     if (!text.trim()) {
       newErrors.text = 'Please describe your reward';
     }
-    
+
     if (cost < 1 || cost > 200) {
       newErrors.cost = 'Cost must be between 1 and 200 hearts';
     }
 
     if (moneyValue < 0 || moneyValue > 100) {
-      newErrors.moneyValue = 'Money value must be between 0 and $100';
+      newErrors.moneyValue = `Money value must be between 0 and ${getCurrencySymbol(currency)}100`;
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
+
     const newReward: Reward = {
       id: generateId(),
       text: text.trim(),
       cost,
       moneyValue: moneyValue > 0 ? moneyValue : undefined
     };
-    
+
     onCreateReward(newReward);
     setText('');
     setCost(1);
@@ -75,8 +77,8 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible }: Rewa
             onChange={(e) => setText(e.target.value)}
             placeholder="30 minutes extra screen time, special dessert, toy..."
             className={`w-full px-4 py-3 text-lg border-2 rounded-xl focus:outline-none transition-colors ${
-              errors.text 
-                ? 'border-red-500 focus:border-red-500' 
+              errors.text
+                ? 'border-red-500 focus:border-red-500'
                 : 'border-gray-200 focus:border-sunny'
             }`}
           />
@@ -92,8 +94,8 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible }: Rewa
             onChange={(e) => setCost(parseInt(e.target.value) || 1)}
             placeholder="20"
             className={`w-full px-4 py-3 text-lg border-2 rounded-xl focus:outline-none transition-colors ${
-              errors.cost 
-                ? 'border-red-500 focus:border-red-500' 
+              errors.cost
+                ? 'border-red-500 focus:border-red-500'
                 : 'border-gray-200 focus:border-sunny'
             }`}
           />
@@ -102,7 +104,7 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible }: Rewa
         <div>
           <label className="block text-navy font-semibold mb-2">Money value (optional)</label>
           <div className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-mint">$</span>
+            <span className="text-2xl font-bold text-mint">{getCurrencySymbol(currency)}</span>
             <input
               type="number"
               min="0"
@@ -111,13 +113,13 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible }: Rewa
               onChange={(e) => setMoneyValue(parseInt(e.target.value) || 0)}
               placeholder="0"
               className={`flex-1 px-4 py-3 text-lg border-2 rounded-xl focus:outline-none transition-colors ${
-                errors.moneyValue 
-                  ? 'border-red-500 focus:border-red-500' 
+                errors.moneyValue
+                  ? 'border-red-500 focus:border-red-500'
                   : 'border-gray-200 focus:border-mint'
               }`}
             />
           </div>
-          <p className="text-sm text-gray-600 mt-1">Add a dollar value that can be collected after claiming this reward</p>
+          <p className="text-sm text-gray-600 mt-1">Add a money value that can be collected after claiming this reward</p>
           {errors.moneyValue && <p className="text-red-500 text-sm mt-1">{errors.moneyValue}</p>}
         </div>
         <div className="flex space-x-3">

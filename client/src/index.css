@@ -23,7 +23,7 @@
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
   --ring: hsl(210, 24%, 16%);
   --radius: 0.5rem;
-  
+
   /* Heart Rewards custom colors */
   --coral: hsl(336, 100%, 70%);
   --teal: hsl(175, 55%, 58%);
@@ -71,130 +71,134 @@
   .bg-coral {
     background-color: var(--coral);
   }
-  
+
   .bg-teal {
     background-color: var(--teal);
   }
-  
+
   .bg-sunny {
     background-color: var(--sunny);
   }
-  
+
   .bg-mint {
     background-color: var(--mint);
   }
-  
+
   .bg-cream {
     background-color: var(--cream);
   }
-  
+
   .text-coral {
     color: var(--coral);
   }
-  
+
   .text-teal {
     color: var(--teal);
   }
-  
+
   .text-sunny {
     color: var(--sunny);
   }
-  
+
   .text-mint {
     color: var(--mint);
   }
-  
+
   .text-navy {
     color: var(--navy);
   }
-  
+
   .border-coral {
     border-color: var(--coral);
   }
-  
+
   .border-teal {
     border-color: var(--teal);
   }
-  
+
   .border-sunny {
     border-color: var(--sunny);
   }
-  
+
   .border-mint {
     border-color: var(--mint);
   }
-  
+
   .hover\:bg-coral:hover {
     background-color: var(--coral);
   }
-  
+
   .hover\:bg-teal-600:hover {
     background-color: hsl(175, 55%, 48%);
   }
-  
+
   .hover\:bg-pink-600:hover {
     background-color: hsl(336, 88%, 60%);
   }
-  
+
   .hover\:bg-yellow-500:hover {
     background-color: hsl(50, 100%, 61%);
   }
-  
+
   .hover\:bg-green-400:hover {
     background-color: hsl(143, 66%, 68%);
   }
-  
+
   .animate-heart-beat {
     animation: heartbeat 0.6s ease-in-out infinite;
   }
-  
+
   .animate-bounce-gentle {
     animation: bounce 1s ease-in-out 3;
   }
-  
+
   .animate-fade-in {
     animation: fadeIn 0.5s ease-in-out;
   }
-  
+
   .animate-scale-up {
     animation: scaleUp 0.3s ease-out;
   }
-  
+
   .animate-float-to-target {
     animation: floatToTarget var(--duration, 1200ms) ease-out forwards;
   }
-  
+
   .animate-confetti-fall {
     animation: confettiFall 3s linear forwards;
+  }
+
+  .animate-rainbow {
+    animation: rainbow 2s linear infinite;
   }
 }
 
 @keyframes heartbeat {
-  0%, 100% { 
-    transform: scale(1); 
+  0%, 100% {
+    transform: scale(1);
   }
-  50% { 
-    transform: scale(1.1); 
+  50% {
+    transform: scale(1.1);
   }
 }
 
 @keyframes fadeIn {
-  0% { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  100% { 
-    opacity: 1; 
-    transform: translateY(0); 
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes scaleUp {
-  0% { 
-    transform: scale(0.95); 
+  0% {
+    transform: scale(0.95);
   }
-  100% { 
-    transform: scale(1); 
+  100% {
+    transform: scale(1);
   }
 }
 
@@ -222,4 +226,15 @@
     transform: translateY(100vh) rotate(720deg);
     opacity: 0;
   }
+}
+
+@keyframes rainbow {
+  0% { background-color: #ff0000; }
+  14% { background-color: #ff7f00; }
+  28% { background-color: #ffff00; }
+  42% { background-color: #00ff00; }
+  57% { background-color: #0000ff; }
+  71% { background-color: #4b0082; }
+  85% { background-color: #9400d3; }
+  100% { background-color: #ff0000; }
 }
