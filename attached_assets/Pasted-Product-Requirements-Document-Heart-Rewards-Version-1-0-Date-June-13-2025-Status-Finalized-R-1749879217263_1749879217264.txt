@@ -1,0 +1,102 @@
+Product Requirements Document: Heart Rewards
+Version: 1.0
+
+Date: June 13, 2025
+
+Status: Finalized, Ready for Development
+
+1. Introduction & Vision
+Product Name: Heart Rewards
+
+Vision: To create a simple, joyful, and empowering client-side web application for children. Heart Rewards functions as a personal goal-setting tool, built on a high-trust philosophy. The child is the administrator of their own system—defining tasks, assigning value, creating rewards, and tracking progress. The application is designed to foster autonomy, planning, and an understanding of goal-setting, with minimal parental oversight.
+
+Core Principles:
+
+Child-Led: The child has full control over creating, managing, and completing tasks and rewards.
+High-Trust Model: The system trusts the child to manage their tasks. The only parental interaction is a simple, non-secure confirmation gate for redeeming real-world rewards.
+Immediate Reinforcement: The application uses the "Do It Again" model, where tasks can be completed multiple times, providing immediate positive feedback.
+2. User Personas
+Primary User Persona: The Child (The "Manager")
+
+Description: A young user who is learning about responsibility and goal-setting.
+Goals: To independently define what she wants to achieve (tasks) and what she is working towards (rewards). She needs to feel in control of the application and see a direct, immediate link between her actions and her progress.
+Secondary User Persona: The Parent (The "Confirmer")
+
+Description: A guardian who wants to encourage the child's autonomy.
+Goals: To honor the system the child has built by providing a simple confirmation when a reward is claimed, thus bridging the gap between the digital app and the real-world reward.
+3. Functional Requirements & Features
+Epic 1: Task Management (Child-Managed)
+The child has full Create, Read, Update, Delete (CRUD) control over tasks.
+
+User Story 1.1 (Create): As the Manager, I want a simple form to add a new task to my list. The form must have two fields: one for the task description (text) and one for the "Hearts" value (a number).
+User Story 1.2 (Read): As the Manager, I want to see a clear list of all the tasks I have created, with their respective Heart values displayed next to them.
+User Story 1.3 (Update/Execute): As the Manager, I want a button next to each task. When I press this button, my total Heart count should immediately increase by the task's value. The task should remain on the list, ready to be completed again.
+User Story 1.4 (Delete): As the Manager, I want to be able to permanently delete a task from my list if I decide I no longer want it.
+Epic 2: Reward Management (Child-Managed)
+The child has full CRUD control over rewards.
+
+User Story 2.1 (Create): As the Manager, I want a simple form to add a new reward I want to work towards. The form must have two fields: one for the reward description (text) and one for its cost in Hearts (a number).
+User Story 2.2 (Read): As the Manager, I want to see a clear list of all the rewards I have created, with their respective Heart costs displayed.
+User Story 2.3 (Update/Claim): As the Manager, I want a "Claim" button next to each reward. This button must be visually disabled if my current Heart total is less than the reward's cost. When I have enough Hearts, the button must be enabled.
+User Story 2.4 (Delete): As the Manager, I want to be able to permanently delete a reward from my list.
+Epic 3: Reward Redemption (The Parent Gate)
+This is the only feature requiring parental interaction.
+
+User Story 3.1: When the enabled "Claim" button for a reward is pressed, the system must display a full-screen modal view.
+User Story 3.2: The modal will contain a single, simple question: "Are you a parent?"
+User Story 3.3: Below the question, there must be two large, clearly labeled buttons: "Yes" and "No".
+User Story 3.4 (The "Yes" Path): If the "Yes" button is pressed, the system will:
+Subtract the reward's cost from the child's total Heart count.
+Display a brief, joyful success animation or message (e.g., "Reward Claimed!").
+Close the modal and return to the main application view.
+User Story 3.5 (The "No" Path): If the "No" button is pressed, the system will:
+Display a friendly message (e.g., "Please ask a parent to help you claim your reward!").
+Cancel the transaction immediately (no Hearts are deducted).
+Close the modal and return to the main application view.
+4. Data Models
+All data will be stored in the browser's localStorage. The application should be structured around these two core data models:
+
+TypeScript
+
+// In lib/types.ts
+
+export interface Task {
+  id: string; // A unique identifier, e.g., generated with crypto.randomUUID()
+  text: string; // The description of the task
+  rewardValue: number; // The number of Hearts it is worth
+}
+
+export interface Reward {
+  id: string; // A unique identifier
+  text: string; // The description of the reward
+  cost: number; // The number of Hearts it costs
+}
+The master state of the application will be:
+
+TypeScript
+
+// The main state object stored in localStorage
+
+interface AppState {
+  hearts: number;
+  tasks: Task[];
+  rewards: Reward[];
+}
+5. Non-Functional Requirements
+Technology Stack:
+Build Tool/Framework: Vite + React
+Language: TypeScript
+Styling: Tailwind CSS
+Environment: Client-Side Only. The application must run entirely within the user's web browser. It will have no backend server.
+Data Persistence: All application state (Hearts, tasks, rewards) must persist between sessions using localStorage. The application should feel seamless when closed and reopened.
+Design: The UI/UX must be extremely simple, intuitive, and visually appealing to a child. Prioritize large, touch-friendly elements, bright and cheerful colors, and clear, legible typography.
+6. Minimum Viable Product (MVP)
+The initial development sprint should focus on delivering the following core features:
+
+A functional form to create tasks and another to create rewards.
+Dynamic lists that display all user-created tasks and rewards.
+A "Get Hearts" button on each task that correctly updates the total Heart count.
+A "Claim" button on each reward that is conditionally disabled/enabled based on the Heart count.
+The complete "Parent Gate" modal flow for reward redemption.
+The ability to delete tasks and rewards.
+Full persistence of all data in localStorage.
