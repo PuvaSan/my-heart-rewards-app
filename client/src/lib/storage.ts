@@ -7,7 +7,8 @@ const defaultState: AppState = {
   money: 0,
   tasks: [],
   rewards: [],
-  claimedRewards: []
+  claimedRewards: [],
+  activityHistory: []
 };
 
 export const loadAppState = (): AppState => {
