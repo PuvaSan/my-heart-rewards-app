@@ -5,7 +5,7 @@ interface RewardsListProps {
   hearts: number;
   claimedRewards: string[];
   onClaimReward: (reward: Reward) => void;
-  onCollectMoney: (rewardId: string) => void;
+  onCollectMoney: (rewardId: string, buttonElement?: HTMLElement) => void;
   onRenewReward: (rewardId: string) => void;
   onDeleteReward: (rewardId: string) => void;
 }

@@ -107,11 +107,31 @@ export default function Home() {
     });
   };
 
-  const handleCompleteTask = (task: Task) => {
+  const handleCompleteTask = (task: Task, buttonElement?: HTMLElement) => {
     setAppState(prev => ({
       ...prev,
       hearts: prev.hearts + task.rewardValue
     }));
+    
+    // Add to activity history
+    addActivity({
+      type: 'task_completed',
+      description: `Completed "${task.text}"`,
+      heartsEarned: task.rewardValue
+    });
+
+    // Trigger floating animation if we have both elements
+    if (buttonElement && heartCounterRef.current) {
+      triggerFloatingAnimation(
+        buttonElement,
+        heartCounterRef.current,
+        <div className="text-coral flex items-center space-x-1">
+          <i className="fas fa-heart"></i>
+          <span>+{task.rewardValue}</span>
+        </div>
+      );
+    }
+    
     setSuccessOverlay({
       isVisible: true,
       message: 'Amazing Job!',
@@ -154,6 +174,17 @@ export default function Home() {
         hearts: prev.hearts - parentGateModal.reward!.cost,
         claimedRewards: [...prev.claimedRewards, parentGateModal.reward!.id]
       }));
+      
+      // Add to activity history
+      addActivity({
+        type: 'reward_claimed',
+        description: `Claimed "${parentGateModal.reward.text}"`,
+        heartsSpent: parentGateModal.reward.cost
+      });
+      
+      // Trigger confetti
+      setShowConfetti(true);
+      
       setSuccessOverlay({
         isVisible: true,
         message: 'Reward Claimed!',
@@ -172,7 +203,7 @@ export default function Home() {
     setParentGateModal({ isOpen: false, reward: null });
   };
 
-  const handleCollectMoney = (rewardId: string) => {
+  const handleCollectMoney = (rewardId: string, buttonElement?: HTMLElement) => {
     const reward = appState.rewards.find(r => r.id === rewardId);
     if (reward && reward.moneyValue) {
       setAppState(prev => ({
@@ -180,12 +211,44 @@ export default function Home() {
         money: prev.money + reward.moneyValue!,
         claimedRewards: prev.claimedRewards.filter(id => id !== rewardId)
       }));
+      
+      // Add to activity history
+      addActivity({
+        type: 'money_collected',
+        description: `Collected $${reward.moneyValue} from "${reward.text}"`,
+        moneyEarned: reward.moneyValue
+      });
+
+      // Trigger floating animation if we have both elements
+      if (buttonElement && moneyCounterRef.current) {
+        triggerFloatingAnimation(
+          buttonElement,
+          moneyCounterRef.current,
+          <div className="text-mint flex items-center space-x-1">
+            <i className="fas fa-dollar-sign"></i>
+            <span>+${reward.moneyValue}</span>
+          </div>
+        );
+      }
+      
       setSuccessOverlay({
         isVisible: true,
         message: 'Money Collected!',
         subMessage: `You earned $${reward.moneyValue}!`
       });
     }
+  };
+
+  const handleRenewReward = (rewardId: string) => {
+    setAppState(prev => ({
+      ...prev,
+      claimedRewards: prev.claimedRewards.filter(id => id !== rewardId)
+    }));
+    setSuccessOverlay({
+      isVisible: true,
+      message: 'Reward Renewed!',
+      subMessage: 'Ready to earn again!'
+    });
   };
 
   const handleDeleteReward = (rewardId: string) => {
@@ -209,8 +272,20 @@ export default function Home() {
               <h1 className="text-3xl md:text-4xl font-bold text-navy">Heart Rewards</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <MoneyCounter money={appState.money} />
-              <HeartCounter hearts={appState.hearts} />
+              <button
+                onClick={() => setShowActivityHistory(true)}
+                className="bg-gray-100 hover:bg-gray-200 text-navy px-4 py-2 rounded-full font-semibold transition-all duration-200 flex items-center space-x-2"
+                title="Activity History"
+              >
+                <i className="fas fa-history"></i>
+                <span className="hidden sm:inline">History</span>
+              </button>
+              <div ref={moneyCounterRef}>
+                <MoneyCounter money={appState.money} />
+              </div>
+              <div ref={heartCounterRef}>
+                <HeartCounter hearts={appState.hearts} />
+              </div>
             </div>
           </div>
         </div>
@@ -274,6 +349,7 @@ export default function Home() {
             claimedRewards={appState.claimedRewards}
             onClaimReward={handleClaimReward}
             onCollectMoney={handleCollectMoney}
+            onRenewReward={handleRenewReward}
             onDeleteReward={handleDeleteReward}
           />
         </section>
@@ -294,6 +370,28 @@ export default function Home() {
         message={successOverlay.message}
         subMessage={successOverlay.subMessage}
         onClose={() => setSuccessOverlay({ isVisible: false, message: '', subMessage: '' })}
+      />
+
+      {/* Floating Animations */}
+      <FloatingAnimation
+        isVisible={floatingAnimation.isVisible}
+        startPosition={floatingAnimation.startPosition}
+        targetPosition={floatingAnimation.targetPosition}
+        content={floatingAnimation.content}
+        onComplete={() => setFloatingAnimation(prev => ({ ...prev, isVisible: false }))}
+      />
+
+      {/* Confetti Effect */}
+      <ConfettiEffect
+        isVisible={showConfetti}
+        onComplete={() => setShowConfetti(false)}
+      />
+
+      {/* Activity History Modal */}
+      <ActivityHistoryModal
+        isOpen={showActivityHistory}
+        activityHistory={appState.activityHistory}
+        onClose={() => setShowActivityHistory(false)}
       />
 
       {/* Floating Help Hint */}

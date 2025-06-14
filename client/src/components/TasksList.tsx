@@ -2,7 +2,7 @@ import { Task } from '@/lib/types';
 
 interface TasksListProps {
   tasks: Task[];
-  onCompleteTask: (task: Task) => void;
+  onCompleteTask: (task: Task, buttonElement?: HTMLElement) => void;
   onDeleteTask: (taskId: string) => void;
 }
 
@@ -32,7 +32,7 @@ export default function TasksList({ tasks, onCompleteTask, onDeleteTask }: Tasks
             </div>
             <div className="flex items-center space-x-3">
               <button
-                onClick={() => onCompleteTask(task)}
+                onClick={(e) => onCompleteTask(task, e.currentTarget)}
                 className="bg-coral hover:bg-pink-600 text-white px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
               >
                 <i className="fas fa-heart"></i>
