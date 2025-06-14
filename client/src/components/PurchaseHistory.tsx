@@ -25,7 +25,7 @@ const categoryColors = {
 };
 
 export default function PurchaseHistory({ purchases, currency }: PurchaseHistoryProps) {
-  if (purchases.length === 0) {
+  if (!purchases || purchases.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 text-center border-l-4 border-gray-300">
         <i className="fas fa-receipt text-4xl text-gray-400 mb-4"></i>
@@ -35,13 +35,14 @@ export default function PurchaseHistory({ purchases, currency }: PurchaseHistory
     );
   }
 
-  const totalSpent = purchases.reduce((sum, purchase) => sum + purchase.amount, 0);
-  const categoryTotals = purchases.reduce((totals, purchase) => {
+  const safePurchases = purchases || [];
+  const totalSpent = safePurchases.reduce((sum, purchase) => sum + purchase.amount, 0);
+  const categoryTotals = safePurchases.reduce((totals, purchase) => {
     totals[purchase.category] = (totals[purchase.category] || 0) + purchase.amount;
     return totals;
   }, {} as Record<Purchase['category'], number>);
 
-  const sortedPurchases = [...purchases].sort((a, b) => b.timestamp - a.timestamp);
+  const sortedPurchases = [...safePurchases].sort((a, b) => b.timestamp - a.timestamp);
 
   return (
     <div className="space-y-6">
@@ -59,10 +60,10 @@ export default function PurchaseHistory({ purchases, currency }: PurchaseHistory
               {getCurrencySymbol(currency)}{totalSpent.toFixed(2)}
             </p>
           </div>
-          <div className="bg-blue-50 rounded-xl p-4 text-center">
-            <p className="text-sm text-gray-600 mb-1">Total Purchases</p>
-            <p className="text-3xl font-bold text-blue-600">{purchases.length}</p>
-          </div>
+                     <div className="bg-blue-50 rounded-xl p-4 text-center">
+             <p className="text-sm text-gray-600 mb-1">Total Purchases</p>
+             <p className="text-3xl font-bold text-blue-600">{safePurchases.length}</p>
+           </div>
         </div>
 
         <div className="space-y-2">
@@ -101,31 +102,29 @@ export default function PurchaseHistory({ purchases, currency }: PurchaseHistory
           </h3>
         </div>
 
-        <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                <div className="divide-y divide-gray-100">
           {sortedPurchases.map((purchase) => {
             const date = new Date(purchase.timestamp);
             const timeAgo = getTimeAgo(purchase.timestamp);
 
             return (
-              <div key={purchase.id} className="p-4 hover:bg-gray-50 transition-colors">
+              <div key={purchase.id} className="p-1 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-2 rounded-full ${categoryColors[purchase.category]}`}>
-                      <i className={`${categoryIcons[purchase.category]} text-lg`}></i>
+                  <div className="flex items-center space-x-2 flex-1 min-w-0">
+                    <div className={`p-1 rounded-full ${categoryColors[purchase.category]} flex-shrink-0`}>
+                      <i className={`${categoryIcons[purchase.category]} text-sm`}></i>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-navy">{purchase.description}</h4>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-semibold text-navy text-sm truncate">{purchase.description}</h4>
+                      <div className="flex items-center space-x-2 text-xs text-gray-600">
                         <span className="capitalize">{purchase.category}</span>
                         <span>•</span>
                         <span>{timeAgo}</span>
-                        <span>•</span>
-                        <span>{date.toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-mint">
+                  <div className="text-right flex-shrink-0 ml-2">
+                    <p className="text-sm font-bold text-mint">
                       -{getCurrencySymbol(currency)}{purchase.amount.toFixed(2)}
                     </p>
                   </div>

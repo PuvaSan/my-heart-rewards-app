@@ -27,21 +27,20 @@ export default function RewardsList({ rewards, hearts, currency, claimedRewards,
     <div className="space-y-4">
       {rewards.map((reward) => {
         const canAfford = hearts >= reward.cost;
-        const heartsNeeded = reward.cost - hearts;
         const isClaimed = claimedRewards.includes(reward.id);
 
         return (
           <div
             key={reward.id}
-            className={`bg-white rounded-2xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-all duration-200 animate-fade-in ${
+            className={`bg-white rounded-2xl shadow-lg p-4 border-l-4 hover:shadow-xl transition-all duration-200 animate-fade-in ${
               isClaimed ? 'border-mint bg-mint bg-opacity-10' : canAfford ? 'border-sunny' : 'border-gray-300 opacity-75'
             }`}
           >
             <div className="flex justify-between items-center">
-              <div className="flex-1">
-                <h3 className={`text-lg font-semibold mb-2 ${isClaimed ? 'text-green-700' : canAfford ? 'text-navy' : 'text-gray-600'}`}>
+              <div>
+                <h3 className={`text-base font-semibold mb-1 ${isClaimed ? 'text-green-700' : canAfford ? 'text-navy' : 'text-gray-600'}`}>
                   {reward.text}
-                  {isClaimed && <span className="ml-2 text-sm bg-green-600 text-white px-2 py-1 rounded-full">Claimed!</span>}
+                  {isClaimed && <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded-full">Claimed!</span>}
                 </h3>
                 <div className={`flex items-center space-x-2 font-semibold ${isClaimed ? 'text-green-600' : canAfford ? 'text-sunny' : 'text-gray-500'}`}>
                   <i className="fas fa-coins"></i>
@@ -53,18 +52,14 @@ export default function RewardsList({ rewards, hearts, currency, claimedRewards,
                       {getCurrencySymbol(currency)}{reward.moneyValue}
                     </span>
                   )}
-                  {!canAfford && !isClaimed && heartsNeeded > 0 && (
-                    <span className="text-sm text-red-500 ml-2">
-                      (Need {heartsNeeded} more!)
-                    </span>
-                  )}
+
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-between space-x-2">
                 {isClaimed && reward.moneyValue ? (
                   <button
                     onClick={(e) => onCollectMoney(reward.id, e.currentTarget)}
-                    className="animate-rainbow hover:bg-green-400 text-white px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
+                    className="animate-rainbow hover:bg-green-400 text-white px-6 py-1 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
                   >
                     <i className="fas fa-piggy-bank"></i>
                     <span>Collect {getCurrencySymbol(currency)}{reward.moneyValue}!</span>
@@ -81,7 +76,7 @@ export default function RewardsList({ rewards, hearts, currency, claimedRewards,
                   <button
                     onClick={() => canAfford && onClaimReward(reward)}
                     disabled={!canAfford}
-                    className={`px-6 py-3 rounded-full font-semibold text-lg shadow-lg transition-all duration-200 flex items-center space-x-2 ${
+                    className={`px-6 py-1 rounded-full font-semibold text-sm shadow-lg transition-all duration-200 flex items-center space-x-2 ${
                       canAfford
                         ? 'bg-mint hover:bg-green-400 text-navy hover:shadow-xl transform hover:scale-105'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -93,7 +88,7 @@ export default function RewardsList({ rewards, hearts, currency, claimedRewards,
                 ) : null}
                 <button
                   onClick={() => onDeleteReward(reward.id)}
-                  className="text-gray-400 hover:text-red-500 p-2 transition-colors"
+                  className="text-gray-400 hover:text-red-500 p-2 transition-colors ml-auto"
                   title="Delete reward"
                 >
                   <i className="fas fa-trash text-xl"></i>

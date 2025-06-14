@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Task, Reward, AppState, ActivityEntry } from "@/lib/types";
+import { Task, Reward, AppState, ActivityEntry, Purchase } from "@/lib/types";
 import { loadAppState, saveAppState, generateId } from "@/lib/storage";
 import { getCurrencySymbol } from "@/components/CurrencySelector";
 import HeartCounter from "@/components/HeartCounter";
@@ -8,6 +8,8 @@ import TaskForm from "@/components/TaskForm";
 import TasksList from "@/components/TasksList";
 import RewardForm from "@/components/RewardForm";
 import RewardsList from "@/components/RewardsList";
+import SpendingForm from "@/components/SpendingForm";
+import PurchaseHistory from "@/components/PurchaseHistory";
 import ParentGateModal from "@/components/ParentGateModal";
 import SuccessOverlay from "@/components/SuccessOverlay";
 import FloatingAnimation from "@/components/FloatingAnimation";
@@ -24,9 +26,11 @@ export default function Home() {
     rewards: [],
     claimedRewards: [],
     activityHistory: [],
+    purchases: [],
   });
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showRewardForm, setShowRewardForm] = useState(false);
+  const [showSpendingForm, setShowSpendingForm] = useState(false);
   const [showActivityHistory, setShowActivityHistory] = useState(false);
   const [parentGateModal, setParentGateModal] = useState<{
     isOpen: boolean;
@@ -285,6 +289,40 @@ export default function Home() {
     }
   };
 
+  const handleAddPurchase = (purchase: Purchase, buttonElement?: HTMLElement) => {
+    setAppState((prev) => ({
+      ...prev,
+      money: prev.money - purchase.amount,
+      purchases: [...prev.purchases, purchase],
+    }));
+
+    // Add to activity history
+    addActivity({
+      type: "money_spent",
+      description: `Spent ${getCurrencySymbol(appState.currency)}${purchase.amount} on "${purchase.description}"`,
+      moneySpent: purchase.amount,
+    });
+
+    // Trigger floating animation if we have both elements
+    if (buttonElement && moneyCounterRef.current) {
+      triggerFloatingAnimation(
+        buttonElement,
+        moneyCounterRef.current,
+        <div className="text-red-500 flex items-center space-x-1">
+          <i className="fas fa-shopping-cart"></i>
+          <span>-{getCurrencySymbol(appState.currency)}{purchase.amount}</span>
+        </div>,
+      );
+    }
+
+    setShowSpendingForm(false);
+    setSuccessOverlay({
+      isVisible: true,
+      message: "Purchase Recorded!",
+      subMessage: `You spent ${getCurrencySymbol(appState.currency)}${purchase.amount} on ${purchase.description}`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream to-yellow-50">
       {/* Header */}
@@ -321,70 +359,115 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 pb-12">
-        {/* Tasks Section */}
-        <section className="mb-12">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-navy flex items-center">
-              <i className="fas fa-tasks text-teal mr-3"></i>
-              My Tasks
-            </h2>
-            <button
-              onClick={() => setShowTaskForm(true)}
-              className="bg-teal hover:bg-teal-600 text-white px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
-            >
-              <i className="fas fa-plus"></i>
-              <span>Add Task</span>
-            </button>
-          </div>
+      <main className="max-w-7xl mx-auto px-6 pb-12">
+        {/* 3-Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          <TaskForm
-            isVisible={showTaskForm}
-            onCreateTask={handleCreateTask}
-            onCancel={() => setShowTaskForm(false)}
-          />
+          {/* Column 1: Tasks */}
+          <div className="space-y-6">
+            <div className="flex flex-col justify-between items-start mb-6 gap-4">
+              <h2 className="text-2xl font-bold text-navy flex items-center">
+                <i className="fas fa-tasks text-teal mr-3"></i>
+                My Tasks
+              </h2>
+              <button
+                onClick={() => setShowTaskForm(true)}
+                className="w-full bg-teal hover:bg-teal-600 text-white px-4 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <i className="fas fa-plus"></i>
+                <span>Add Task</span>
+              </button>
+            </div>
 
-          <TasksList
-            tasks={appState.tasks}
-            onCompleteTask={handleCompleteTask}
-            onDeleteTask={handleDeleteTask}
-          />
-        </section>
-
-        {/* Rewards Section */}
-        <section>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-navy flex items-center">
-              <i className="fas fa-gift text-sunny mr-3"></i>
-              My Rewards
-            </h2>
-            <button
-              onClick={() => setShowRewardForm(true)}
-              className="bg-sunny hover:bg-yellow-500 text-navy px-6 py-3 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
-            >
-              <i className="fas fa-plus"></i>
-              <span>Add Reward</span>
-            </button>
-          </div>
-
-          <RewardForm
-            isVisible={showRewardForm}
-            onCreateReward={handleCreateReward}
-            onCancel={() => setShowRewardForm(false)}
-            currency={appState.currency}
-          />
-
-                      <RewardsList
-              rewards={appState.rewards}
-              hearts={appState.hearts}
-              currency={appState.currency}
-              claimedRewards={appState.claimedRewards}
-              onClaimReward={handleClaimReward}
-              onCollectMoney={handleCollectMoney}
-              onRenewReward={handleRenewReward}
-              onDeleteReward={handleDeleteReward}
+            <TaskForm
+              isVisible={showTaskForm}
+              onCreateTask={handleCreateTask}
+              onCancel={() => setShowTaskForm(false)}
             />
-        </section>
+
+            <div className="max-h-96 overflow-y-auto">
+              <TasksList
+                tasks={appState.tasks}
+                onCompleteTask={handleCompleteTask}
+                onDeleteTask={handleDeleteTask}
+              />
+            </div>
+          </div>
+
+          {/* Column 2: Rewards */}
+          <div className="space-y-6">
+            <div className="flex flex-col justify-between items-start mb-6 gap-4">
+              <h2 className="text-2xl font-bold text-navy flex items-center">
+                <i className="fas fa-gift text-sunny mr-3"></i>
+                My Rewards
+              </h2>
+              <button
+                onClick={() => setShowRewardForm(true)}
+                className="w-full bg-sunny hover:bg-yellow-500 text-navy px-4 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <i className="fas fa-plus"></i>
+                <span>Add Reward</span>
+              </button>
+            </div>
+
+            <RewardForm
+              isVisible={showRewardForm}
+              onCreateReward={handleCreateReward}
+              onCancel={() => setShowRewardForm(false)}
+              currency={appState.currency}
+            />
+
+            <div className="max-h-96 overflow-y-auto">
+              <RewardsList
+                rewards={appState.rewards}
+                hearts={appState.hearts}
+                currency={appState.currency}
+                claimedRewards={appState.claimedRewards}
+                onClaimReward={handleClaimReward}
+                onCollectMoney={handleCollectMoney}
+                onRenewReward={handleRenewReward}
+                onDeleteReward={handleDeleteReward}
+              />
+            </div>
+          </div>
+
+          {/* Column 3: Money Shop */}
+          <div className="space-y-6">
+            <div className="flex flex-col justify-between items-start mb-6 gap-4">
+              <h2 className="text-2xl font-bold text-navy flex items-center">
+                <i className="fas fa-shopping-cart text-mint mr-3"></i>
+                Money Shop
+              </h2>
+              <button
+                onClick={() => setShowSpendingForm(true)}
+                disabled={appState.money <= 0}
+                className={`w-full px-4 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 ${
+                  appState.money > 0
+                    ? 'bg-mint hover:bg-green-400 text-navy hover:shadow-xl transform hover:scale-105'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                <i className="fas fa-plus"></i>
+                <span>Record Purchase</span>
+              </button>
+            </div>
+
+            <SpendingForm
+              isVisible={showSpendingForm}
+              onAddPurchase={handleAddPurchase}
+              onCancel={() => setShowSpendingForm(false)}
+              currency={appState.currency}
+              availableMoney={appState.money}
+            />
+
+            <div className="max-h-96 overflow-y-auto">
+              <PurchaseHistory
+                purchases={appState.purchases}
+                currency={appState.currency}
+              />
+            </div>
+          </div>
+        </div>
       </main>
 
       {/* Parent Gate Modal */}

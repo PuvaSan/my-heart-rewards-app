@@ -10,7 +10,8 @@ const defaultState: AppState = {
   tasks: [],
   rewards: [],
   claimedRewards: [],
-  activityHistory: []
+  activityHistory: [],
+  purchases: []
 };
 
 export const loadAppState = (): AppState => {
@@ -27,7 +28,8 @@ export const loadAppState = (): AppState => {
         tasks: parsedState.tasks || [],
         rewards: parsedState.rewards || [],
         claimedRewards: parsedState.claimedRewards || [],
-        activityHistory: parsedState.activityHistory || []
+        activityHistory: parsedState.activityHistory || [],
+        purchases: parsedState.purchases || []
       };
     }
   } catch (error) {
