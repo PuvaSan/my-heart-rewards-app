@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Task, Reward, AppState } from '@/lib/types';
 import { loadAppState, saveAppState } from '@/lib/storage';
 import HeartCounter from '@/components/HeartCounter';
+import MoneyCounter from '@/components/MoneyCounter';
 import TaskForm from '@/components/TaskForm';
 import TasksList from '@/components/TasksList';
 import RewardForm from '@/components/RewardForm';
@@ -10,7 +11,7 @@ import ParentGateModal from '@/components/ParentGateModal';
 import SuccessOverlay from '@/components/SuccessOverlay';
 
 export default function Home() {
-  const [appState, setAppState] = useState<AppState>({ hearts: 0, tasks: [], rewards: [] });
+  const [appState, setAppState] = useState<AppState>({ hearts: 0, money: 0, tasks: [], rewards: [], claimedRewards: [] });
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showRewardForm, setShowRewardForm] = useState(false);
   const [parentGateModal, setParentGateModal] = useState<{ isOpen: boolean; reward: Reward | null }>({
@@ -95,7 +96,8 @@ export default function Home() {
     if (parentGateModal.reward) {
       setAppState(prev => ({
         ...prev,
-        hearts: prev.hearts - parentGateModal.reward!.cost
+        hearts: prev.hearts - parentGateModal.reward!.cost,
+        claimedRewards: [...prev.claimedRewards, parentGateModal.reward!.id]
       }));
       setSuccessOverlay({
         isVisible: true,
@@ -115,11 +117,28 @@ export default function Home() {
     setParentGateModal({ isOpen: false, reward: null });
   };
 
+  const handleCollectMoney = (rewardId: string) => {
+    const reward = appState.rewards.find(r => r.id === rewardId);
+    if (reward && reward.moneyValue) {
+      setAppState(prev => ({
+        ...prev,
+        money: prev.money + reward.moneyValue!,
+        claimedRewards: prev.claimedRewards.filter(id => id !== rewardId)
+      }));
+      setSuccessOverlay({
+        isVisible: true,
+        message: 'Money Collected!',
+        subMessage: `You earned $${reward.moneyValue}!`
+      });
+    }
+  };
+
   const handleDeleteReward = (rewardId: string) => {
     if (confirm('Are you sure you want to delete this reward?')) {
       setAppState(prev => ({
         ...prev,
-        rewards: prev.rewards.filter(reward => reward.id !== rewardId)
+        rewards: prev.rewards.filter(reward => reward.id !== rewardId),
+        claimedRewards: prev.claimedRewards.filter(id => id !== rewardId)
       }));
     }
   };

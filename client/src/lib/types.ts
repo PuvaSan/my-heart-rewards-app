@@ -16,4 +16,5 @@ export interface AppState {
   money: number;
   tasks: Task[];
   rewards: Reward[];
+  claimedRewards: string[]; // Track which rewards have been claimed but not yet collected for money
 }
