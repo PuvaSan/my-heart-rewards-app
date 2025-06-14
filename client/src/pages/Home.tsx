@@ -14,7 +14,7 @@ import ConfettiEffect from '@/components/ConfettiEffect';
 import ActivityHistoryModal from '@/components/ActivityHistoryModal';
 
 export default function Home() {
-  const [appState, setAppState] = useState<AppState>({ hearts: 0, money: 0, tasks: [], rewards: [], claimedRewards: [], activityHistory: [] });
+  const [appState, setAppState] = useState<AppState>({ childName: '', currency: 'YEN', hearts: 0, money: 0, tasks: [], rewards: [], claimedRewards: [], activityHistory: [] });
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showRewardForm, setShowRewardForm] = useState(false);
   const [showActivityHistory, setShowActivityHistory] = useState(false);

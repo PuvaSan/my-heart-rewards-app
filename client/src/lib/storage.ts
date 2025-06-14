@@ -3,6 +3,8 @@ import { AppState, Task, Reward } from './types';
 const STORAGE_KEY = 'heart-rewards-app-state';
 
 const defaultState: AppState = {
+  childName: '',
+  currency: 'YEN',
   hearts: 0,
   money: 0,
   tasks: [],
@@ -18,6 +20,8 @@ export const loadAppState = (): AppState => {
       const parsedState = JSON.parse(stored);
       // Migrate old data format to new format
       return {
+        childName: parsedState.childName || '',
+        currency: parsedState.currency || 'YEN',
         hearts: parsedState.hearts || 0,
         money: parsedState.money || 0,
         tasks: parsedState.tasks || [],

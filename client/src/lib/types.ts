@@ -22,6 +22,8 @@ export interface ActivityEntry {
 }
 
 export interface AppState {
+  childName: string;
+  currency: 'USD' | 'YEN' | 'EUR' | 'GBP';
   hearts: number;
   money: number;
   tasks: Task[];

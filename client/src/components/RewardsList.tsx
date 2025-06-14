@@ -1,8 +1,10 @@
-import { Reward } from '@/lib/types';
+import { Reward, AppState } from '@/lib/types';
+import { getCurrencySymbol } from './CurrencySelector';
 
 interface RewardsListProps {
   rewards: Reward[];
   hearts: number;
+  currency: AppState['currency'];
   claimedRewards: string[];
   onClaimReward: (reward: Reward) => void;
   onCollectMoney: (rewardId: string, buttonElement?: HTMLElement) => void;
