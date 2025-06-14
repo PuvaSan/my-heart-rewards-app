@@ -14,7 +14,15 @@ export const loadAppState = (): AppState => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsedState = JSON.parse(stored);
+      // Migrate old data format to new format
+      return {
+        hearts: parsedState.hearts || 0,
+        money: parsedState.money || 0,
+        tasks: parsedState.tasks || [],
+        rewards: parsedState.rewards || [],
+        claimedRewards: parsedState.claimedRewards || []
+      };
     }
   } catch (error) {
     console.error('Error loading app state from localStorage:', error);

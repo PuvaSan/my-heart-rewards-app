@@ -153,7 +153,10 @@ export default function Home() {
               <i className="fas fa-heart text-4xl text-coral animate-heart-beat"></i>
               <h1 className="text-3xl md:text-4xl font-bold text-navy">Heart Rewards</h1>
             </div>
-            <HeartCounter hearts={appState.hearts} />
+            <div className="flex items-center space-x-4">
+              <MoneyCounter money={appState.money} />
+              <HeartCounter hearts={appState.hearts} />
+            </div>
           </div>
         </div>
       </header>
@@ -213,7 +216,9 @@ export default function Home() {
           <RewardsList
             rewards={appState.rewards}
             hearts={appState.hearts}
+            claimedRewards={appState.claimedRewards}
             onClaimReward={handleClaimReward}
+            onCollectMoney={handleCollectMoney}
             onDeleteReward={handleDeleteReward}
           />
         </section>
