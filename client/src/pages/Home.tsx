@@ -460,7 +460,11 @@ export default function Home() {
               availableMoney={appState.money}
             />
 
-            <div className="max-h-96 overflow-y-auto">
+            {/* If you want a scrollable summary/chart, put it here */}
+            {/* <div className="max-h-96 overflow-y-auto"> ...summary/chart... </div> */}
+
+            {/* PurchaseHistory is now outside the scrollable div */}
+            <div className="mt-6">
               <PurchaseHistory
                 purchases={appState.purchases}
                 currency={appState.currency}

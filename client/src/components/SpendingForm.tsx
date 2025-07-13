@@ -135,13 +135,16 @@ export default function SpendingForm({ onAddPurchase, onCancel, isVisible, curre
           <div className="flex items-center space-x-2">
             <span className="text-2xl font-bold text-mint">{getCurrencySymbol(currency)}</span>
             <input
-              type="number"
-              min="0"
-              step="0.01"
-              max={availableMoney}
-              value={amount}
-              onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-              placeholder="0.00"
+              type="text"
+              pattern="[0-9]*"
+              inputMode="decimal"
+              value={amount === 0 ? '' : amount}
+              onChange={(e) => {
+                const val = e.target.value.replace(/^0+/, '');
+                const num = parseFloat(val) || 0;
+                setAmount(num);
+              }}
+              placeholder="Enter amount"
               className={`flex-1 px-4 py-3 text-lg border-2 rounded-xl focus:outline-none transition-colors ${
                 errors.amount
                   ? 'border-red-500 focus:border-red-500'

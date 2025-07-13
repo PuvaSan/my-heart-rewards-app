@@ -29,8 +29,10 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible, curren
       newErrors.cost = 'Cost must be between 1 and 200 hearts';
     }
 
-    if (moneyValue < 0 || moneyValue > 100) {
-      newErrors.moneyValue = `Money value must be between 0 and ${getCurrencySymbol(currency)}100`;
+    // Adjust validation based on currency
+    const maxValue = currency === 'YEN' ? 10000 : 100;
+    if (moneyValue < 0 || moneyValue > maxValue) {
+      newErrors.moneyValue = `Money value must be between 0 and ${getCurrencySymbol(currency)}${maxValue}`;
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -106,12 +108,16 @@ export default function RewardForm({ onCreateReward, onCancel, isVisible, curren
           <div className="flex items-center space-x-2">
             <span className="text-2xl font-bold text-mint">{getCurrencySymbol(currency)}</span>
             <input
-              type="number"
-              min="0"
-              max="100"
-              value={moneyValue}
-              onChange={(e) => setMoneyValue(parseInt(e.target.value) || 0)}
-              placeholder="0"
+              type="text"
+              pattern="[0-9]*"
+              inputMode="numeric"
+              value={moneyValue || ''}
+              onChange={(e) => {
+                const val = e.target.value.replace(/^0+/, '');
+                const num = parseInt(val) || 0;
+                setMoneyValue(num);
+              }}
+              placeholder="Enter amount"
               className={`flex-1 px-4 py-3 text-lg border-2 rounded-xl focus:outline-none transition-colors ${
                 errors.moneyValue
                   ? 'border-red-500 focus:border-red-500'

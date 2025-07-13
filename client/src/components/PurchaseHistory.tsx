@@ -45,31 +45,30 @@ export default function PurchaseHistory({ purchases, currency }: PurchaseHistory
   const sortedPurchases = [...safePurchases].sort((a, b) => b.timestamp - a.timestamp);
 
   return (
-    <div className="space-y-6">
+    <>
       {/* Spending Summary */}
-      <div className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-mint">
+      <div className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-mint mb-6">
         <h3 className="text-xl font-semibold text-navy mb-4 flex items-center">
           <i className="fas fa-chart-pie text-mint mr-2"></i>
           Spending Summary
         </h3>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="bg-mint bg-opacity-10 rounded-xl p-4 text-center">
             <p className="text-sm text-gray-600 mb-1">Total Spent</p>
-            <p className="text-3xl font-bold text-mint">
+            <p className="text-3xl font-bold text-white">
               {getCurrencySymbol(currency)}{totalSpent.toFixed(2)}
             </p>
           </div>
-                     <div className="bg-blue-50 rounded-xl p-4 text-center">
-             <p className="text-sm text-gray-600 mb-1">Total Purchases</p>
-             <p className="text-3xl font-bold text-blue-600">{safePurchases.length}</p>
-           </div>
+          <div className="bg-blue-50 rounded-xl p-4 text-center">
+            <p className="text-sm text-gray-600 mb-1">Total Purchases</p>
+            <p className="text-3xl font-bold text-blue-600">{safePurchases.length}</p>
+          </div>
         </div>
-
         <div className="space-y-2">
           <h4 className="font-semibold text-navy">Spending by Category</h4>
           {Object.entries(categoryTotals).map(([category, total]) => {
-            const percentage = (total / totalSpent) * 100;
+            const maxTotal = Math.max(...Object.values(categoryTotals));
+            const percentage = maxTotal > 0 ? (total / maxTotal) * 100 : 0;
             return (
               <div key={category} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -77,13 +76,13 @@ export default function PurchaseHistory({ purchases, currency }: PurchaseHistory
                   <span className="capitalize font-medium">{category}</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
+                  <div className="w-32 bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-mint h-2 rounded-full transition-all duration-500"
                       style={{ width: `${percentage}%` }}
                     ></div>
                   </div>
-                  <span className="font-semibold text-mint w-16 text-right">
+                  <span className="font-semibold text-mint w-24 text-right">
                     {getCurrencySymbol(currency)}{total.toFixed(2)}
                   </span>
                 </div>
@@ -101,14 +100,12 @@ export default function PurchaseHistory({ purchases, currency }: PurchaseHistory
             Purchase History
           </h3>
         </div>
-
-                <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-100">
           {sortedPurchases.map((purchase) => {
             const date = new Date(purchase.timestamp);
             const timeAgo = getTimeAgo(purchase.timestamp);
-
             return (
-              <div key={purchase.id} className="p-1 hover:bg-gray-50 transition-colors">
+              <div key={purchase.id} className="p-1gst hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 flex-1 min-w-0">
                     <div className={`p-1 rounded-full ${categoryColors[purchase.category]} flex-shrink-0`}>
@@ -134,7 +131,7 @@ export default function PurchaseHistory({ purchases, currency }: PurchaseHistory
           })}
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
