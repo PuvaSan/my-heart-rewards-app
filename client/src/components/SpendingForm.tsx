@@ -39,8 +39,6 @@ export default function SpendingForm({ onAddPurchase, onCancel, isVisible, curre
       newErrors.amount = 'Amount must be greater than 0';
     } else if (amount > availableMoney) {
       newErrors.amount = `You only have ${getCurrencySymbol(currency)}${availableMoney} available`;
-    } else if (amount > 500) {
-      newErrors.amount = `Amount must be less than ${getCurrencySymbol(currency)}500`;
     }
 
     if (Object.keys(newErrors).length > 0) {
